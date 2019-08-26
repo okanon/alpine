@@ -1,0 +1,56 @@
+# Contributor: okanon <flat.cydia37jins.pc@gmail.com>
+# Maintainer: okanon <flat.cydia37jins.pc@gmail.com>
+pkgname="golang"
+pkgver="1.12.9"
+pkgrel=0
+pkgdesc="GO is open source programming language that makes it easy to build simple, reliable, and efficient software."
+url="https://golang.org"
+arch="x86"
+license="BSD-3-Clause"
+depends="binutils gcc"
+makedepends="gawk"
+options="!strip"
+install=""
+subpackages=""
+source="https://dl.google.com/go/go1.12.9.src.tar.gz"
+builddir="$srcdir/go"
+
+build() {
+	cd "$builddir/src"
+	#sed -i -e "s/GOROOT=\"\$(cd \.\. \&\& pwd)\"/GOROOT=\"\/usr\/lib\/go\"/" make.bash
+	GOARCH="386" ./make.bash
+}
+
+check() {
+	# Replace with proper check command(s)
+	:
+}
+
+package() {
+	# Replace with proper package command(s)
+	mkdir -p "$pkgdir/usr/lib" "$pkgdir/usr/bin"
+	cd $srcdir
+	cp -r go "$pkgdir/usr/lib/"
+	cd "$pkgdir/usr/bin" && find ../lib/go/bin/ -type f | gawk -F/ '{print $NF}' | xargs -I{} ln -s ../lib/go/bin/{} {}
+
+	find "$pkgdir/usr/lib/go/src" \( -type f -a -name "*_test.go" \) \
+		-exec rm -rf \{\} \+ || return 1
+	find "$pkgdir/usr/lib/go/src" \( -type d -a -name "testdata" \) \
+		-exec rm -rf \{\} \+ || return 1
+	find "$pkgdir/usr/lib/go/src" \( -type f -a -name "*.bash" \) \
+		-exec rm -rf \{\} \+ || return 1
+	find "$pkgdir/usr/lib/go/src" \( -type f -a -name "*.bat" \) \
+		-exec rm -rf \{\} \+ || return 1
+	find "$pkgdir/usr/lib/go/src" \( -type f -a -name "*.rc" \) \
+		-exec rm -rf \{\} \+ || return 1
+	find "$pkgdir/usr/lib/go/pkg" \( -type d -a -name "obj" \) \
+		-exec rm -rf \{\} \+ || return 1
+	find "$pkgdir/usr/lib/go" \( -type d -a -name "test" \) \
+		-exec rm -rf \{\} \+ || return 1
+
+
+
+	rm -rf "$pkgdir/usr/lib/go/pkg/bootstrap"
+}
+
+sha512sums="57041e7fb767f528aa9fc2592d205d3a7c120c73f92dc8d91f17f816e12aa6152c8421b333081800a5f50b1bb656f203a25faf8ed92c69a6ec164ce0a5619c13  go1.12.9.src.tar.gz"
